@@ -17,6 +17,12 @@ create or replace package geocalldevutilities.A000_UTILITY_PCK is
   -- Public function and procedure declarations
   function fTotalAmountPurchased(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
     return Number;
+  function fPrincipalAmountPurchased(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
+    return Number;  
+  function fFeesAmountPurchased(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
+    return Number; 
+  function fInterestAmountPurchased(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
+    return Number;         
   function fTotalAmount2BeRecovered(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
     return Number;
   function fAgeCase(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
@@ -47,12 +53,15 @@ create or replace package geocalldevutilities.A000_UTILITY_PCK is
                            CState            varchar2) return Number;
 
   function fState(Status varchar2) return NUMBER;
+  function fDataOldCAse(IdCase Number) return DATE;
+  function fDayScad (IdLotto Numeric) return DATE;
   --unit test
   procedure UtpWriteCalculatedValue(ftest out Boolean);
   procedure UtpWriteLogDetail(NrecordWrite out number);
   procedure UtpCaseCustomer(nameCustomer out Varchar2);
   procedure UtpCaseDebtor(nameDebtor out Varchar2); 
   procedure UtpDAtaLotto(datalotto out geocall.x900alotti.x900alotdataacquisizione%type);
+  procedure UtpAgeCAse (numdays out Number);
 
 --function fCaseAccountable (customCursor SYS_REFCURSOR) return Boolean;
 end A000_UTILITY_PCK;
@@ -67,8 +76,8 @@ create or replace package body geocalldevutilities.A000_UTILITY_PCK is
 
   -- Private variable declarations
 
-  TotalAmountPurchased    Number;
-  TotalAmount2BeRecovered Number;
+
+
   CaseAccountable         boolean;
   
 
@@ -77,26 +86,92 @@ create or replace package body geocalldevutilities.A000_UTILITY_PCK is
   function fTotalAmountPurchased(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
     return Number is
     --  <LocalVariable> <Datatype>;
+      TotalAmountPurchased    Number;
   begin
     --<Statement>;
     TotalAmountPurchased := dbUserTableCase.X900APRAIMPORTOTOTRECUPERATO;
     return(TotalAmountPurchased);
   end fTotalAmountPurchased;
 
+  function fPrincipalAmountPurchased(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
+    return Number is
+    --  <LocalVariable> <Datatype>;
+      PrincipalAmountPurchased    Number;
+  begin
+    --<Statement>;
+    PrincipalAmountPurchased := dbUserTableCase.X900aprarecuperatorate;
+    return(PrincipalAmountPurchased);
+  end fPrincipalAmountPurchased;
+  
+    function fFeesAmountPurchased(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
+    return Number is
+    --  <LocalVariable> <Datatype>;
+      FeesAmountPurchased    Number;
+  begin
+    --<Statement>;
+    FeesAmountPurchased := dbUserTableCase.X900aprarecuperatospese;
+    return(FeesAmountPurchased);
+  end fFeesAmountPurchased;
+  
+    function fInterestAmountPurchased(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
+    return Number is
+    --  <LocalVariable> <Datatype>;
+      InterestAmountPurchased    Number;
+  begin
+    --<Statement>;
+    InterestAmountPurchased := dbUserTableCase.X900aprarecuperatointeressi;
+    return(InterestAmountPurchased);
+  end fInterestAmountPurchased;
+
   function fTotalAmount2BeRecovered(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
     return Number is
     --  <LocalVariable> <Datatype>;
+      TotalAmount2BeRecovered Number;
   begin
     --<Statement>;
     TotalAmount2BeRecovered := dbUserTableCase.X900APRATOTIMPORTOARECUPERO;
     return(TotalAmount2BeRecovered);
   end fTotalAmount2BeRecovered;
   
+ 
+  
+  
+  function fDayScad (IdLotto Numeric) return DATE
+  is
+  DataChiusuraLotto DATE;
+  cursorData Sys_Refcursor;
+  NRecordLog Number; 
+  begin
+  OPEN cursorData FOR
+       Select Lotto.X900alotdatafinelavorazione  
+  
+        from GEocall.x900alotti  Lotto
+        WHERE Lotto.X900alotid=IDLotto;
+  LOOP
+    Fetch cursorData 
+    into DataChiusuraLotto;
+    EXIT WHEN cursorData%NOTFOUND;
+    if DataChiusuraLotto is null then
+          NRecordLog:=fWriteLogDetail('function',
+                         'fDataLotto',
+                         'No Data found out for idLotto:' || IDLotto,
+                         'KO');
+      return(NULL);
+    end if;  
+   end loop;
+   return (DataChiusuraLotto);
+   end fDayScad;
+  
+  
+  
+  /**
+  fDataLotto 20170831
+  */
   function fDataLotto(IDlotto Number) return date
   is
   DataAcquisizioneLotto DATE;
   cursorData Sys_Refcursor;
-   
+  NRecordLog Number; 
   begin
   OPEN cursorData FOR
        Select Lotto.X900alotdataacquisizione  
@@ -108,14 +183,44 @@ create or replace package body geocalldevutilities.A000_UTILITY_PCK is
     into DataAcquisizioneLotto;
     EXIT WHEN cursorData%NOTFOUND;
     if DataAcquisizioneLotto is null then
-      
-      /*20170830 scrivo la log errore*/
+          NRecordLog:=fWriteLogDetail('function',
+                         'fDataLotto',
+                         'No Data found out for idLotto:' || IDLotto,
+                         'KO');
       return(NULL);
     end if;  
    end loop;
-    return (DataAcquisizioneLotto);
+  return (DataAcquisizioneLotto);
     
   end fDataLotto;
+  
+  function fDataOldCAse(IdCase Number) return DATE
+    IS
+    CursorMinData Sys_Refcursor;
+    DAtaMinCase DATE;
+    NRecordLog Number;
+    BEGIN
+      OPEN CursorMinData FOR
+      SELECT MIN(RIGHEP.X900ARPRDATASCADENZAPAGAMENTO)
+      FROM GEOCALL.X900ARIGHEPRATICHE RIGHEP
+      WHERE RIGHEP.X900ARPRID_X900APRA=IdCase; 
+      LOOP
+        FETCH CursorMinData INTO DataMinCase;
+        EXIT WHEN CursorMinData%NOTFOUND;
+        if DataMinCase is null then
+          NRecordLog:=fWriteLogDetail('function',
+                         'fDataOldCAse',
+                         'No Data found out for idCase:' || IDCase,
+                         'KO');
+          return(NULL);
+        end if;  
+      END LOOP;
+      return (DataMinCase);
+  
+  END fDataOldCAse;
+  
+  
+  
   
   /***
   fuction FCase Age 
@@ -126,24 +231,29 @@ create or replace package body geocalldevutilities.A000_UTILITY_PCK is
     return Number
     IS
     /*variable*/
-    abc number;
+    dDataLotto DATE;
+    dDAtaMinCase DATE;
+    
     BEGIN 
       /*code*/
-      abc:=0;
+      
       /* number of days between date acquisition set of case  and oldest date of invoices*/
       /*
       select sulle rate facendosi restituire la meno recente
       
       */
-      
+      dDAtaMinCase:=fdataOldCase(DbUserTableCAse.X900apraid);
       
       /*
       select per la data del lotto
       */
-      
+      dDataLotto:=fDAtaLotto(DbUserTableCAse.X900apraid_X900alot);
       /*
       Differences between date
       */
+      
+      return dDataLotto-dDAtaMinCase;
+      
       
     end fAgeCase;
         
@@ -410,8 +520,8 @@ create or replace package body geocalldevutilities.A000_UTILITY_PCK is
       END IF;
     
       EXIT WHEN cursorReference%NOTFOUND;
-    
-      INSERT INTO GEOCALLDEVUTILITIES.X900PFATTURAZIONEIMPORTI --verify at 20170830 INSERT INTO GEOCALL.X900PFATTURAZIONEIMPORTI
+      INSERT INTO  GEOCALL.X900PFATTURAZIONEIMPORTI
+      --INSERT INTO GEOCALLDEVUTILITIES.X900PFATTURAZIONEIMPORTI --verify at 20170830 INSERT INTO GEOCALL.X900PFATTURAZIONEIMPORTI
         (X900PFIMID,
          X900PFIMID_X900APTE,
          X900PFIMID_X900ALOT,
@@ -429,12 +539,14 @@ create or replace package body geocalldevutilities.A000_UTILITY_PCK is
          X900PFIMIMPONIBILE,
          DATASTAMP)
       VALUES
-         (NlastNumber, -- GEOCALL.SX900PFATTURAZIONEIMPORTI.NEXTVAL, code to comment  after 20170830 CR meeting
+         (GEOCALL.SX900PFATTURAZIONEIMPORTI.NEXTVAL, 
+
+       --  (NlastNumber, -- GEOCALL.SX900PFATTURAZIONEIMPORTI.NEXTVAL, code to comment  after 20170830 CR meeting
 
          IDInvoice,
          IDSetOfCase,
          IDCase,
-         101,
+         101,  -- verfica in collaudo 20170901 per capire se parametro deve essere variabile
          lAccountingReference,
          dbUserTableReferenceRead.LAccountingDESCR,
          '0',
@@ -518,24 +630,7 @@ create or replace package body geocalldevutilities.A000_UTILITY_PCK is
       END;
   end fWriteCalculatedValue;
 
-  procedure UtpWriteCalculatedValue(ftest OUT Boolean) IS
-  
-  BEGIN
-  
-    if (fWriteCalculatedValue(100,
-                              10000,
-                              11000,
-                              'TEST_CODE',
-                              'TEsting Code',
-                              110,
-                              1) = 1) then
-      ftest := TRUE;
-    
-    ELSE
-      ftest := FALSE;
-    END IF;
-  
-  END UtpWriteCalculatedValue;
+
 
   function fState(Status varchar2) return Number IS
     bstatus Boolean;
@@ -670,6 +765,42 @@ create or replace package body geocalldevutilities.A000_UTILITY_PCK is
     */
     
   End UtpDAtaLotto;
+  
+  procedure UtpAgeCAse (numdays out Number)
+    IS
+    CursorPRat sys_refcursor;
+    DbUserTablePRat Geocall.X900apratiche%ROWTYPE;
+    BEGIN
+    OPEN CursorPrat FOR
+    SELECT * FROM Geocall.X900apratiche PRAT
+    WHERE PRAT.X900APRAID=15170741;
+    LOOP
+      FETCH CursorPRat INTO
+      DbUserTablePRat;   
+      EXIT WHEN CursorPRat%NOTFOUND;
+      
+      numdays:=fAgecase(DbUserTablePRat);
+    END LOOP;
+    END UtpAgeCAse;
+
+  procedure UtpWriteCalculatedValue(ftest OUT Boolean) IS
+  
+  BEGIN
+  
+    if (fWriteCalculatedValue(100,
+                              10000,
+                              11000,
+                              'TEST_CODE',
+                              'TEsting Code',
+                              110,
+                              1) = 1) then
+      ftest := TRUE;
+    
+    ELSE
+      ftest := FALSE;
+    END IF;
+  
+  END UtpWriteCalculatedValue;
 
   --begin
 -- Initialization

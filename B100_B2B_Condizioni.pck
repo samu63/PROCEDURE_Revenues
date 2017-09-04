@@ -75,7 +75,7 @@ begin
                           SYSDATE,-- valore fittizio
                           SYSdate,-- valore fittizio
                           'abc', -- valore fittizio
-                          'fgh', -- valore fittizio
+                          'pRCN_COND_FATT_STD', -- valore fittizio
                           ESITOPROC
                           );
                         
@@ -103,22 +103,44 @@ begin
   
   DbUserTablePrat Geocall.X900Apratiche%Rowtype;
   cursorPratiche SYS_REFCURSOR;
-  NTot2Recover Number; -- Total amount to be revovered
+  NRecovered Number; -- Total amount to be revovered
   NRecordLog Number;
-  Npercentageapplicable Number;
+  NpercentageapplicableMin Number;
+  NpercentageapplicableMid Number;
+  NpercentageapplicableMax Number;
   NCAseValue Number; -- VAlue calculated
   NrecordW Number; --Nrecords Write
   NrecordD Number; --Nrecord write detail invoice
+  sNameProcedure varchar2(40);
+-- quotes to divide the amount recovered
+-- MIN, MID, MAX 
+
+  MINValue Number;
+  MIDValue Number;
+  MAXValue Number;
+-- quotes to divide the interval of time
+  MinDays Number;
+  MidDays Number;
+  MaxDays Number;  
   BEGIN/*codice*/
   /*
-  leggere pratica si potrebbe faer una funzione che restituisce un cursore di pratiche
+  leggere pratica 
   accountable?
   calcolare anzianità
-  calcolare range
+  applicare range
   calcolare recuperato
   
   applicare percentuali
   */
+  -- value Range 10**6 value according to Geocall rule
+  MINValue := 0;
+  MIDValue := 3000 * 10**6;
+  MAXVALUE := 6000 * 10**6;
+  -- time range
+  MinDays:=0;
+  MidDays:=180;
+  MaxDays:=720;
+  sNameProcedure := 'pRCN_COND_FATT_STD';
   OPEN cursorPratiche FOR
     SELECT * FROM GEOCALL.x900Apratiche PRAT
     where PRAT.X900APRAID_X900ALOT=ID_LOTTO_MASTER;
@@ -128,39 +150,45 @@ begin
     if (DbUserTablePrat.X900apraid) IS NULL THEN
       RAISE InvalidPrat;
     end if;  
+    NCaseValue:=0;
     --Ngiornidiff:=geocalldevutilities.a000_utility_pck.fAgeCase(DbUserTablePrat);
     if (geocalldevutilities.a000_utility_pck.fCaseAccountable(DbUserTablePrat)) then
-      NTot2Recover:=geocalldevutilities.a000_utility_pck.fTotalAmount2BeRecovered(DbUserTablePrat); 
-      /*applicare range sul totale da recuperare*/
-      if NTot2Recover <= 3000  then
+     /*applicare range sul totale recuperato*/ 
+     NRecovered:=geocalldevutilities.a000_utility_pck.fTotalAmountPurchased(DbUserTablePrat); 
+     
+      
          
-        if  geocalldevutilities.a000_utility_pck.fAgeCase(DbUserTablePrat) <=180 then
-            Npercentageapplicable:=0.08;
-        elsif geocalldevutilities.a000_utility_pck.fAgeCase(DbUserTablePrat) <=720 then
-             Npercentageapplicable:=0.12;
+        if  geocalldevutilities.a000_utility_pck.fAgeCase(DbUserTablePrat) <=MidDays then
+            NpercentageapplicableMax:=0.04;
+            NpercentageapplicableMid:=0.06;
+            NpercentageapplicableMin:=0.08;                        
+        elsif geocalldevutilities.a000_utility_pck.fAgeCase(DbUserTablePrat) <=MaxDays then
+            NpercentageapplicableMax:=0.08;
+            NpercentageapplicableMid:=0.10;
+            NpercentageapplicableMin:=0.12;   
         else 
-            Npercentageapplicable:=0.18;
+            NpercentageapplicableMax:=0.18;
+            NpercentageapplicableMid:=0.18;
+            NpercentageapplicableMin:=0.18;
         end if;
-            
-      elsif  NTot2Recover >3000  and NTot2Recover <=6000 then
-        if  geocalldevutilities.a000_utility_pck.fAgeCase(DbUserTablePrat) <=180 then
-            Npercentageapplicable:=0.06;
-        elsif geocalldevutilities.a000_utility_pck.fAgeCase(DbUserTablePrat) <=720 then
-             Npercentageapplicable:=0.10;
-        else 
-            Npercentageapplicable:=0.18;
-        end if;    
-      else
-        if  geocalldevutilities.a000_utility_pck.fAgeCase(DbUserTablePrat) <=180 then
-            Npercentageapplicable:=0.04;
-        elsif geocalldevutilities.a000_utility_pck.fAgeCase(DbUserTablePrat) <=720 then
-             Npercentageapplicable:=0.08;
-        else 
-            Npercentageapplicable:=0.18;      
-        end if;    
-      end if;
-    end if;
-    NCAseValue:=geocalldevutilities.a000_utility_pck.fTotalAmountPurchased(DbUserTablePrat)*Npercentageapplicable;
+        
+        NCaseValue:=(NRecovered-MAXVALUE)*NpercentageapplicableMAX;
+        if NCAseValue < 0 then
+          NCAseValue:=0;
+        else  
+          NRecovered:=(NRecovered-MAXVALUE);
+        end if;
+        NCaseValue:=Ncasevalue + (NRecovered-MIDVALUE)*NpercentageapplicableMid;  
+        if NCAseValue < 0 then
+          NCAseValue:=0;
+        else  
+          NRecovered:=(NRecovered-MIDValue);
+        end if;
+        NCaseValue:=Ncasevalue + (NRecovered-MINVALUE)*NpercentageapplicableMin;     
+   
+
+    
+    
     
     /**
     scrivere risultato
@@ -170,7 +198,7 @@ begin
                                                                          DbusertablePrat.X900apraid,           
                                                                          'REC_B2B',
                                                                          'Recuperato Totale',
-                                                                         NTot2Recover,
+                                                                         geocalldevutilities.a000_utility_pck.fTotalAmountPurchased(DbUserTablePrat),
                                                                          NCAseValue);
                                                                          
     NrecordD:=geocalldevutilities.a000_utility_pck.fWriteInvoiceDetail(ID_FATTURA,
@@ -179,6 +207,7 @@ begin
                                                                        geocalldevutilities.a000_utility_pck.fCaseDebtor(DbusertablePrat.X900apraid),
                                                                        0,
                                                                        NCAseValue);
+    end if;
   END LOOP;  
   ESITO:='Finito'; -- valore fittizio 20170831                                                         
   
@@ -191,7 +220,7 @@ begin
     begin
       NRecordLog:=geocalldevutilities.a000_utility_pck.fWriteLogDetail 
                                                                 ('procedure',
-                                                                 'pRCN_COND_FATT_STD',
+                                                                 sNameprocedure,
                                                                  'No Record found for idCase ' || DbUserTablePrat.X900apraid,
                                                                   'KO');
     end;
