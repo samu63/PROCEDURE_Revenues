@@ -22,10 +22,14 @@ create or replace package geocalldevutilities.A000_UTILITY_PCK is
   function fFeesAmountPurchased(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
     return Number; 
   function fInterestAmountPurchased(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
-    return Number;         
+    return Number;    
+  function fProtestAmountPurchased(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
+    return Number;        
   function fTotalAmount2BeRecovered(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
     return Number;
   function fAgeCase(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
+    return Number;  
+  function fAgeCase(idCase Number)
     return Number;  
   function fDataLotto(IDlotto Number) 
     return date;  
@@ -122,6 +126,16 @@ create or replace package body geocalldevutilities.A000_UTILITY_PCK is
     InterestAmountPurchased := dbUserTableCase.X900aprarecuperatointeressi;
     return(InterestAmountPurchased);
   end fInterestAmountPurchased;
+  
+  function fProtestAmountPurchased(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
+    return Number is
+    --  <LocalVariable> <Datatype>;
+      ProtestAmountPurchased    Number;
+  begin
+    --<Statement>;
+    ProtestAmountPurchased := dbUserTableCase.x900aprarecuperatoprotesti;
+    return(ProtestAmountPurchased);
+  end fProtestAmountPurchased;
 
   function fTotalAmount2BeRecovered(dbUserTableCase GEOCALL.X900APRATICHE%ROWTYPE)
     return Number is
@@ -257,6 +271,59 @@ create or replace package body geocalldevutilities.A000_UTILITY_PCK is
       
     end fAgeCase;
         
+  function fAgeCase(IdCase Number)
+    return Number
+    IS
+    /*variable*/
+    
+    dDataLotto DATE;
+    dDAtaMinCase DATE;
+    cursorPrat Sys_Refcursor;
+    NCodLotto Number;
+    NRecordLog Number;
+    
+    BEGIN 
+      /*code*/
+      
+      /* 
+      number of days between date acquisition set of case  and oldest date of invoices*/
+      /*
+      select sulle rate facendosi restituire la meno recente
+      
+      */
+          
+      dDAtaMinCase:=fdataOldCase(IDcase);
+    
+      /*
+      select per la data del lotto
+      */
+      
+      OPEN cursorPrat FOR
+      SELECT PRAT.X900APRAID_X900ALOT from
+      geocall.x900apratiche PRAT
+      where PRAT.X900APRAID=IdCase;
+      LOOP
+        FETCH cursorPrat into NCodLotto;
+        EXIT WHEN cursorPrat%NOTFOUND; 
+        if NCodLotto is null then
+            NRecordLog:=fWriteLogDetail('function',
+                           'fAgeCase',
+                           'No Data found out for idCase:' || IDCase,
+                           'KO');
+            return(NULL);
+          end if;
+        END LOOP;
+        dDataLotto:=fDAtaLotto(NCodLotto);
+      
+      
+      /*
+      Differences between date
+      */
+      
+      return dDataLotto-dDAtaMinCase;
+      
+      
+    end fAgeCase;
 
   function fCaseAccountable(idCase Number) return Boolean is
     --  <LocalVariable> <Datatype>;
@@ -761,7 +828,7 @@ create or replace package body geocalldevutilities.A000_UTILITY_PCK is
   begin
     datalotto:=fDataLotto(675909);
     /*
-    Assert la data lorro che restituisce deve essere 27/04/2016
+    Assert la data lotto che restituisce deve essere 27/04/2016
     */
     
   End UtpDAtaLotto;
