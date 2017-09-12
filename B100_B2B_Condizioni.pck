@@ -107,29 +107,29 @@ create or replace package geocalldevutilities.B100_B2B_Condizioni is
   /*
   Unit Test
   */                                           
-  Procedure UtpRCN_CRIBIS_DB_AFFITTO_2012(finito out Boolean); 
+  Procedure UtpRCN_CRIBIS_DB_AFFITTO_2012(IDLOTTOTEST IN Number, finito out Boolean ); 
   
   /*
   Unit Test
   */                                           
-  Procedure UtpRCN_COND_FATT_STD(finito out Boolean);
+  Procedure UtpRCN_COND_FATT_STD(IDLOTTOTEST IN Number, finito out Boolean );
   
   /*
   Unit Test
   */                                           
-  Procedure UtpRCN_CONV_NESTLE_2014(finito out Boolean);
+  Procedure UtpRCN_CONV_NESTLE_2014(IDLOTTOTEST IN Number, finito out Boolean );
   /*
   Unit Test
   */                                           
-  Procedure UtpRCN_ESTERO_GIU_2009(finito out Boolean);
+  Procedure UtpRCN_ESTERO_GIU_2009(IDLOTTOTEST IN Number, finito out Boolean );
   /*
   Unit Test
   */                                           
-  Procedure UtpRCN_STD_ATTIVA_GIUGNO(finito out Boolean);
+  Procedure UtpRCN_STD_ATTIVA_GIUGNO(IDLOTTOTEST IN Number, finito out Boolean );
   /*
   Unit Test
   */                                           
-  Procedure UtpRCN_NO_PREPAGATO(finito out Boolean);
+  Procedure UtpRCN_NO_PREPAGATO(IDLOTTOTEST IN Number, finito out Boolean );
  
 
 Procedure pRCN_ATT_8CAP_50ISP(ID_FATTURA   IN   NUMBER,
@@ -149,7 +149,7 @@ Procedure pRCN_ATT_8CAP_50ISP(ID_FATTURA   IN   NUMBER,
   Unit Test
   */                                           
   
-  Procedure UtpRCN_ATT_8CAP_50ISP(finito out Boolean);
+  Procedure UtpRCN_ATT_8CAP_50ISP(IDLOTTOTEST IN Number, finito out Boolean );
   
   Procedure pCondomini_Pellegrino(ID_FATTURA   IN   NUMBER,
                                              ID_COMMITTENTE IN  NUMBER,
@@ -165,7 +165,7 @@ Procedure pRCN_ATT_8CAP_50ISP(ID_FATTURA   IN   NUMBER,
                                              TIPO_FATTURA_2 IN  VARCHAR2,
                                              ESITO           OUT VARCHAR2);
   
- Procedure UtpCondomini_Pellegrino(finito out Boolean);
+ Procedure UtpCondomini_Pellegrino(IDLOTTOTEST IN Number, finito out Boolean );
  
  Procedure pRCN_ESTERO_2011_EU1(ID_FATTURA   IN   NUMBER,
                                              ID_COMMITTENTE IN  NUMBER,
@@ -181,7 +181,7 @@ Procedure pRCN_ATT_8CAP_50ISP(ID_FATTURA   IN   NUMBER,
                                              TIPO_FATTURA_2 IN  VARCHAR2,
                                              ESITO           OUT VARCHAR2);
                                              
-  Procedure UtpRCN_ESTERO_2011_EU1(finito out Boolean);
+  Procedure UtpRCN_ESTERO_2011_EU1(IDLOTTOTEST IN Number, finito out Boolean );
   
   Procedure pRCN_ESTERO_2011_EU2(ID_FATTURA   IN   NUMBER,
                                              ID_COMMITTENTE IN  NUMBER,
@@ -197,7 +197,7 @@ Procedure pRCN_ATT_8CAP_50ISP(ID_FATTURA   IN   NUMBER,
                                              TIPO_FATTURA_2 IN  VARCHAR2,
                                              ESITO           OUT VARCHAR2);
                                              
-  Procedure UtpRCN_ESTERO_2011_EU2(finito out Boolean);
+  Procedure UtpRCN_ESTERO_2011_EU2(IDLOTTOTEST IN Number, finito out Boolean );
   
   Procedure pRCN_ESTERO_2011_WORLD(ID_FATTURA   IN   NUMBER,
                                              ID_COMMITTENTE IN  NUMBER,
@@ -213,7 +213,7 @@ Procedure pRCN_ATT_8CAP_50ISP(ID_FATTURA   IN   NUMBER,
                                              TIPO_FATTURA_2 IN  VARCHAR2,
                                              ESITO           OUT VARCHAR2);
                                              
-  Procedure UtpRCN_ESTERO_2011_WORLD(finito out Boolean);
+  Procedure UtpRCN_ESTERO_2011_WORLD(IDLOTTOTEST IN Number, finito out Boolean );
  
  /**
 Procedure pRCN_ATT_ALL_HEALTH calculate the amount divided in ranges
@@ -297,11 +297,11 @@ Procedure pGIC_SINTETICO calculate the amount divided in ranges
   /*
   Unit Test
   */                                           
-  Procedure UtpRCN_ATT_ALL_HEALTH(finito out Boolean);
-  Procedure UtpRCN_STD_ATTIVA_ANTIN(finito out Boolean);
-  Procedure UtpLEG_B2B_STD(finito out Boolean);
-  Procedure UtpGIC_PROCEDURALE(finito out Boolean);
-  Procedure UtpGIC_SINTETICO(finito out Boolean);
+  Procedure UtpRCN_ATT_ALL_HEALTH(IDLOTTOTEST IN Number, finito out Boolean );
+  Procedure UtpRCN_STD_ATTIVA_ANTIN(IDLOTTOTEST IN Number, finito out Boolean );
+  Procedure UtpLEG_B2B_STD(IDLOTTOTEST IN Number, finito out Boolean );
+  Procedure UtpGIC_PROCEDURALE(IDLOTTOTEST IN Number, finito out Boolean );
+  Procedure UtpGIC_SINTETICO(IDLOTTOTEST IN Number, finito out Boolean );
 
 end B100_B2B_Condizioni;
 /
@@ -331,7 +331,7 @@ begin
   -- Initialization
   <Statement>;
 */
-   Procedure UtpRCN_COND_FATT_STD(finito out Boolean)
+   Procedure UtpRCN_COND_FATT_STD(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -339,8 +339,8 @@ begin
                           1000, -- valore fittizio
                           12,   -- valore fittizio 
                           15,   -- valore fittizio
-                          683524,-- valore reale
-                          683524,-- valore reale
+                          IDLOTTOTEST,-- valore reale
+                          IDLOTTOTEST,-- valore reale
                           123,   -- valore fittizio
                           123,   -- valore fittizio
                           SYSDATE,-- valore fittizio
@@ -504,7 +504,7 @@ begin
   
 
 -- inizio procedura RCN_NO_PREPAGATO
-   Procedure UtpRCN_NO_PREPAGATO(finito out Boolean)
+   Procedure UtpRCN_NO_PREPAGATO(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -512,8 +512,8 @@ begin
                           1000, -- valore fittizio
                           12,   -- valore fittizio 
                           15,   -- valore fittizio
-                          683524,-- valore reale
-                          683524,-- valore reale
+                          IDLOTTOTEST,-- valore reale
+                          IDLOTTOTEST,-- valore reale
                           123,   -- valore fittizio
                           123,   -- valore fittizio
                           SYSDATE,-- valore fittizio
@@ -677,7 +677,7 @@ begin
   END pRCN_NO_PREPAGATO;
   
  -- inizio procedura RCN_STD_ATTIVA_GIUGNO
-   Procedure UtpRCN_STD_ATTIVA_GIUGNO(finito out Boolean)
+   Procedure UtpRCN_STD_ATTIVA_GIUGNO(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -685,8 +685,8 @@ begin
                           1000, -- valore fittizio
                           12,   -- valore fittizio 
                           15,   -- valore fittizio
-                          683524,-- valore reale
-                          683524,-- valore reale
+                          IDLOTTOTEST,-- valore reale
+                          IDLOTTOTEST,-- valore reale
                           123,   -- valore fittizio
                           123,   -- valore fittizio
                           SYSDATE,-- valore fittizio
@@ -860,7 +860,7 @@ begin
   END pRCN_STD_ATTIVA_GIUGNO; 
  
 -- inizio procedura RCN_CONV_CONCESS_NESTLE_2014
-   Procedure UtpRCN_CONV_NESTLE_2014(finito out Boolean)
+   Procedure UtpRCN_CONV_NESTLE_2014(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -868,8 +868,8 @@ begin
                           1000, -- valore fittizio
                           12,   -- valore fittizio 
                           15,   -- valore fittizio
-                          683524,-- valore reale
-                          683524,-- valore reale
+                          IDLOTTOTEST,-- valore reale
+                          IDLOTTOTEST,-- valore reale
                           123,   -- valore fittizio
                           123,   -- valore fittizio
                           SYSDATE,-- valore fittizio
@@ -1043,7 +1043,7 @@ begin
  
 
 -- inizio procedura RCN_ESTERO_GIU_2009
-   Procedure UtpRCN_ESTERO_GIU_2009(finito out Boolean)
+   Procedure UtpRCN_ESTERO_GIU_2009(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -1051,8 +1051,8 @@ begin
                           1000, -- valore fittizio
                           12,   -- valore fittizio 
                           15,   -- valore fittizio
-                          683524,-- valore reale
-                          683524,-- valore reale
+                          IDLOTTOTEST,-- valore reale
+                          IDLOTTOTEST,-- valore reale
                           123,   -- valore fittizio
                           123,   -- valore fittizio
                           SYSDATE,-- valore fittizio
@@ -1219,7 +1219,7 @@ begin
   END pRCN_ESTERO_GIU_2009; 
 
 -- inizio procedura RCN_CRIBIS_DB_AFFITTO_2012
-   Procedure UtpRCN_CRIBIS_DB_AFFITTO_2012(finito out Boolean)
+   Procedure UtpRCN_CRIBIS_DB_AFFITTO_2012(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -1227,8 +1227,8 @@ begin
                           1000, -- valore fittizio
                           12,   -- valore fittizio 
                           15,   -- valore fittizio
-                          683524,-- valore reale
-                          683524,-- valore reale
+                          IDLOTTOTEST,-- valore reale
+                          IDLOTTOTEST,-- valore reale
                           123,   -- valore fittizio
                           123,   -- valore fittizio
                           SYSDATE,-- valore fittizio
@@ -1454,7 +1454,7 @@ Procedure pRCN_ATT_8CAP_50ISP(ID_FATTURA   IN   NUMBER,
   END pRCN_ATT_8CAP_50ISP;
  
   
-Procedure UtpRCN_ATT_8CAP_50ISP(finito out Boolean)
+Procedure UtpRCN_ATT_8CAP_50ISP(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -1591,7 +1591,7 @@ IS
   END pCondomini_Pellegrino;
   
   
-  Procedure UtpCondomini_Pellegrino(finito out Boolean)
+  Procedure UtpCondomini_Pellegrino(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -1699,7 +1699,7 @@ IS
   END pRCN_ESTERO_2011_EU1;
  
   
-Procedure UtpRCN_ESTERO_2011_EU1(finito out Boolean)
+Procedure UtpRCN_ESTERO_2011_EU1(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -1806,7 +1806,7 @@ Procedure UtpRCN_ESTERO_2011_EU1(finito out Boolean)
   END pRCN_ESTERO_2011_EU2;
  
   
-Procedure UtpRCN_ESTERO_2011_EU2(finito out Boolean)
+Procedure UtpRCN_ESTERO_2011_EU2(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -1913,7 +1913,7 @@ Procedure UtpRCN_ESTERO_2011_EU2(finito out Boolean)
   END pRCN_ESTERO_2011_WORLD;
  
   
-Procedure UtpRCN_ESTERO_2011_WORLD(finito out Boolean)
+Procedure UtpRCN_ESTERO_2011_WORLD(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -1936,7 +1936,7 @@ Procedure UtpRCN_ESTERO_2011_WORLD(finito out Boolean)
      END UtpRCN_ESTERO_2011_WORLD;
      
     --RCN_ATTIVA_ALLIANCE_HEALTHCARE
-     Procedure UtpRCN_ATT_ALL_HEALTH(finito out Boolean)
+     Procedure UtpRCN_ATT_ALL_HEALTH(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -1944,8 +1944,8 @@ Procedure UtpRCN_ESTERO_2011_WORLD(finito out Boolean)
                           1000, -- valore fittizio
                           12,   -- valore fittizio 
                           15,   -- valore fittizio
-                          683524,-- valore reale
-                          683524,-- valore reale
+                          IDLOTTOTEST,-- valore reale
+                          IDLOTTOTEST,-- valore reale
                           123,   -- valore fittizio
                           123,   -- valore fittizio
                           SYSDATE,-- valore fittizio
@@ -1959,7 +1959,7 @@ Procedure UtpRCN_ESTERO_2011_WORLD(finito out Boolean)
      END UtpRCN_ATT_ALL_HEALTH;
      
      --RCN_STD_ATTIVA_GIUGNO_09_ANTIN
-     Procedure UtpRCN_STD_ATTIVA_ANTIN(finito out Boolean)
+     Procedure UtpRCN_STD_ATTIVA_ANTIN(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -1967,8 +1967,8 @@ Procedure UtpRCN_ESTERO_2011_WORLD(finito out Boolean)
                           1000, -- valore fittizio
                           12,   -- valore fittizio 
                           15,   -- valore fittizio
-                          683524,-- valore reale
-                          683524,-- valore reale
+                          IDLOTTOTEST,-- valore reale
+                          IDLOTTOTEST,-- valore reale
                           123,   -- valore fittizio
                           123,   -- valore fittizio
                           SYSDATE,-- valore fittizio
@@ -1982,7 +1982,7 @@ Procedure UtpRCN_ESTERO_2011_WORLD(finito out Boolean)
      END UtpRCN_STD_ATTIVA_ANTIN;
      
      --LEG_B2B_STD_2015
-     Procedure UtpLEG_B2B_STD(finito out Boolean)
+     Procedure UtpLEG_B2B_STD(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -1990,8 +1990,8 @@ Procedure UtpRCN_ESTERO_2011_WORLD(finito out Boolean)
                           1000, -- valore fittizio
                           12,   -- valore fittizio 
                           15,   -- valore fittizio
-                          683524,-- valore reale
-                          683524,-- valore reale
+                          IDLOTTOTEST,-- valore reale
+                          IDLOTTOTEST,-- valore reale
                           123,   -- valore fittizio
                           123,   -- valore fittizio
                           SYSDATE,-- valore fittizio
@@ -2004,7 +2004,7 @@ Procedure UtpRCN_ESTERO_2011_WORLD(finito out Boolean)
      finito:=TRUE;                     
      END UtpLEG_B2B_STD;
 
-     Procedure UtpGIC_PROCEDURALE(finito out Boolean)
+     Procedure UtpGIC_PROCEDURALE(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -2012,8 +2012,8 @@ Procedure UtpRCN_ESTERO_2011_WORLD(finito out Boolean)
                           1000, -- valore fittizio
                           12,   -- valore fittizio 
                           15,   -- valore fittizio
-                          683524,-- valore reale
-                          683524,-- valore reale
+                          IDLOTTOTEST,-- valore reale
+                          IDLOTTOTEST,-- valore reale
                           123,   -- valore fittizio
                           123,   -- valore fittizio
                           SYSDATE,-- valore fittizio
@@ -2026,7 +2026,7 @@ Procedure UtpRCN_ESTERO_2011_WORLD(finito out Boolean)
      finito:=TRUE;                     
      END UtpGIC_PROCEDURALE;
  
-     Procedure UtpGIC_SINTETICO(finito out Boolean)
+     Procedure UtpGIC_SINTETICO(IDLOTTOTEST IN Number, finito out Boolean )
      IS
      ESITOPROC VARCHAR2(100);
      BEGIN
@@ -2034,8 +2034,8 @@ Procedure UtpRCN_ESTERO_2011_WORLD(finito out Boolean)
                           1000, -- valore fittizio
                           12,   -- valore fittizio 
                           15,   -- valore fittizio
-                          683524,-- valore reale
-                          683524,-- valore reale
+                          IDLOTTOTEST,-- valore reale
+                          IDLOTTOTEST,-- valore reale
                           123,   -- valore fittizio
                           123,   -- valore fittizio
                           SYSDATE,-- valore fittizio
